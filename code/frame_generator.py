@@ -32,7 +32,7 @@ cap.set(cv2.CAP_PROP_POS_FRAMES, frameCount)
 
 # Determine frame length
 fpsCount = int(fpsOfVideo / fpsSec)
-i = 0
+i = 1
 
 # Process the frames
 while(cap.isOpened()):
@@ -46,7 +46,7 @@ while(cap.isOpened()):
     # Write the frame into disk
     if (i == fpsCount):
         cv2.imwrite(output_dir + 'frame' + str(frameCount) + '.jpg', frame)
-        i = 0
+        i = 1
     else:
         i = i + 1
     
