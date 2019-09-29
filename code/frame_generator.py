@@ -7,9 +7,10 @@ import shutil
 fileName = sys.argv[1]
 startSec = float(sys.argv[2])
 endSec = float(sys.argv[3])
+fpsSec = int(sys.argv[4])
 
 # Define the output directory
-output_dir = './output_' + str(startSec) + '_' + str(endSec) + '/'
+output_dir = './output_' + str(startSec) + '_' + str(endSec) + '_' + str(fpsSec) + 'fps/'
 
 # Clear if the output directory exists
 if os.path.exists(output_dir):
@@ -20,14 +21,18 @@ os.mkdir(output_dir)
 
 # Open the Video file and define the fps
 cap = cv2.VideoCapture(fileName)
-fps = float(cap.get(cv2.CAP_PROP_FPS))
+fpsOfVideo = float(cap.get(cv2.CAP_PROP_FPS))
 
 # Set the counter limits
-frameCount = int(fps * startSec)
-frameEnd = int(fps * endSec) - 1
+frameCount = int(fpsOfVideo * startSec)
+frameEnd = int(fpsOfVideo * endSec) - 1
 
 # Set the cap with the starting frame
 cap.set(cv2.CAP_PROP_POS_FRAMES, frameCount)
+
+# Determine frame length
+fpsCount = int(fpsOfVideo / fpsSec)
+i = 0
 
 # Process the frames
 while(cap.isOpened()):
@@ -39,7 +44,11 @@ while(cap.isOpened()):
         break
     
     # Write the frame into disk
-    cv2.imwrite(output_dir + 'frame' + str(frameCount) + '.jpg', frame)
+    if (i == fpsCount) {
+        cv2.imwrite(output_dir + 'frame' + str(frameCount) + '.jpg', frame)
+    } else {
+        i = 0
+    }
     
     # Exit if limit is reached, increase frameCount otherwise
     if frameCount == frameEnd:
