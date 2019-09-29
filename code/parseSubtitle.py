@@ -1,10 +1,11 @@
 import sys
-f_subtitle = open("./../data/subtitle.srt","r")
+f_subtitle;
 
 def main():
 	#getAllTexts()
-	#getText(sys.argv[1],sys.argv[2])
-	getTextByFrame(sys.argv[1])
+	getText(sys.argv[2],sys.argv[3])
+	#getTextByFrame(sys.argv[2])
+	f_subtitle = open(sys.argv[1])
 
 
 def getAllTexts():
