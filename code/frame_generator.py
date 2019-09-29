@@ -44,11 +44,10 @@ while(cap.isOpened()):
         break
     
     # Write the frame into disk
-    if (i == fpsCount) {
+    if (i == fpsCount):
         cv2.imwrite(output_dir + 'frame' + str(frameCount) + '.jpg', frame)
-    } else {
+    else:
         i = 0
-    }
     
     # Exit if limit is reached, increase frameCount otherwise
     if frameCount == frameEnd:
