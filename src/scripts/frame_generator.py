@@ -1,16 +1,18 @@
+import os, sys, shutil
 import cv2
-import sys
-import os
-import shutil
+import time
+import argparse
 
-# Parse the arguments
-fileName = sys.argv[1]
-startSec = float(sys.argv[2])
-endSec = float(sys.argv[3])
-fpsSec = int(sys.argv[4])
+# Set command line arguments
+ap = argparse.ArgumentParser()
+ap.add_argument('-f', '--file', required = True, help = "Input video file.")
+
+# Get terminal args, parse it
+args = vars(ap.parse_args())
+file = args['file']
 
 # Define the output directory
-output_dir = './output_' + str(startSec) + '_' + str(endSec) + '_' + str(fpsSec) + 'fps/'
+output_dir = './all_frames/'
 
 # Clear if the output directory exists
 if os.path.exists(output_dir):
@@ -19,20 +21,21 @@ if os.path.exists(output_dir):
 # Create the output directory
 os.mkdir(output_dir)
 
-# Open the Video file and define the fps
-cap = cv2.VideoCapture(fileName)
-fpsOfVideo = float(cap.get(cv2.CAP_PROP_FPS))
+# Open the video file, retrieve the fps
+cap = cv2.VideoCapture(file)
+v_fps = cap.get(cv2.CAP_PROP_FPS)
+v_fps_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-# Set the counter limits
-frameCount = int(fpsOfVideo * startSec)
-frameEnd = int(fpsOfVideo * endSec) - 1
+# Print information message on processed video
+print("Video length: {0:.2f} seconds".format(v_fps_total / v_fps))
+print("Total Frames: {} frames".format(v_fps_total))
+print("FPS: {0:.2f} frame/second".format(v_fps))
 
-# Set the cap with the starting frame
-cap.set(cv2.CAP_PROP_POS_FRAMES, frameCount)
+# Define a variable for counting frames
+frameCount = 1
 
-# Determine frame length
-fpsCount = int(fpsOfVideo / fpsSec)
-i = 1
+# Start the execution timer
+exec_timer = time.time()
 
 # Process the frames
 while(cap.isOpened()):
@@ -44,17 +47,12 @@ while(cap.isOpened()):
         break
     
     # Write the frame into disk
-    if (i == fpsCount):
-        cv2.imwrite(output_dir + 'frame' + str(frameCount) + '.jpg', frame)
-        i = 1
-    else:
-        i = i + 1
+    cv2.imwrite(output_dir + 'frame_' + str(frameCount) + '.jpg', frame)
+    frameCount += 1
     
-    # Exit if limit is reached, increase frameCount otherwise
-    if frameCount == frameEnd:
-    	break
-    else:
-        frameCount = frameCount + 1
+# Print success message
+exec_timer = time.time() - exec_timer
+print("Execution is completed succesfully in {0:.2f} seconds.".format(exec_timer))
 
 # Release the video, clean the memory.
 cap.release()
