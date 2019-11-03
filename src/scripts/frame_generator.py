@@ -32,7 +32,7 @@ print("Total Frames: {} frames".format(v_fps_total))
 print("FPS: {0:.2f} frame/second".format(v_fps))
 
 # Define a variable for counting frames
-frameCount = 1
+frameCount = 0
 
 # Start the execution timer
 exec_timer = time.time()
