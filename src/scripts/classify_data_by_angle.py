@@ -13,7 +13,7 @@ import sys
 import cv2
 import numpy as np
 import math
-import os
+import os, sys, shutil
 import argparse
 
 class Point(object):
@@ -31,15 +31,26 @@ ap.add_argument('-j', '--json', required = True, help = "Input json files.")
 ap.add_argument('-f', '--frame', required = True, help = "Input frame files.")
 
 args = vars(ap.parse_args())
-jsons_dir = args['json']
-frames_dir = args['frame']
+jsons_dir = args['json']+'/'
+frames_dir = args['frame']+'/'
 
 output_dir_up = './output_up/'
 output_dir_down = './output_down/'
 
+# Clear if the output directory exists
+if os.path.exists(output_dir_up):
+    shutil.rmtree(output_dir_up, ignore_errors = True)
+
+if os.path.exists(output_dir_down):
+    shutil.rmtree(output_dir_down, ignore_errors = True)
+
+# Create the output directory
+os.mkdir(output_dir_up)
+os.mkdir(output_dir_down)
+
 for json_file in os.listdir(jsons_dir):
 
-    json_no = json_file.split('.')[0]
+    json_no = str(int(json_file.split('_')[2]))
     with open(jsons_dir+json_file) as f:
         data = json.loads(f.read())
 
@@ -82,21 +93,8 @@ for json_file in os.listdir(jsons_dir):
         rhand_points.append(temp)    # add this point to pose point array
         i+=3
 
-    w=40
-    h=20
-    red = [0,0,255]
-    white = [255,255,255]
-    i=0
-    image = cv2.imread(frames_dir+'/frame_'+json_no+".jpg")
-    font = cv2.FONT_HERSHEY_PLAIN
-    
-    '''
-    for point in pose_points:
-        if point.c > 0.5:
-            cv2.circle(image, ((int(point.x), int(point.y))), 5, red, -1)
-            cv2.putText(image, str(i), (int(point.x)+10, int(point.y)), font, 1, white)
-        i+=1
-    '''
+    is_left_null = False
+    is_right_null = False
 
     # CALCULATE LEFT ARM ANGLE
     lengt_one = (math.pow(pose_points[5].x-pose_points[6].x,2)+math.pow(pose_points[5].y-pose_points[6].y,2))
@@ -109,9 +107,6 @@ for json_file in os.listdir(jsons_dir):
     LQ = math.acos((lengt_three - lengt_one -lengt_two)/(-2*math.sqrt(lengt_one)*math.sqrt(lengt_two)))
     LQ = (LQ*180/math.pi)
 
-    #font = cv2.FONT_HERSHEY_TRIPLEX
-    #cv2.putText(image, "L. Angle: "+str(LQ)[0:5], (120,40), font, 1, red)
-
     # CALCULATE RIGHT ARM ANGLE
     lengt_one = (math.pow(pose_points[2].x-pose_points[3].x,2)+math.pow(pose_points[2].y-pose_points[3].y,2))
     lengt_two = (math.pow(pose_points[3].x-pose_points[4].x,2)+math.pow(pose_points[3].y-pose_points[4].y,2))
@@ -120,14 +115,20 @@ for json_file in os.listdir(jsons_dir):
     RQ = math.acos((lengt_three - lengt_one -lengt_two)/(-2*math.sqrt(lengt_one)*math.sqrt(lengt_two)))
     RQ = (RQ*180/math.pi)
 
-    font = cv2.FONT_HERSHEY_TRIPLEX
-    #cv2.putText(image, "R. Angle: "+str(RQ)[0:5], (120,80), font, 1, red)
+    if pose_points[4].x == 0 and pose_points[4].y == 0 and pose_points[4].c == 0:
+        is_right_null = True
+    
+    if pose_points[7].x == 0 and pose_points[7].y == 0 and pose_points[7].c == 0:
+        is_left_null = True
 
-    if LQ > 100 and RQ > 100:
-        #cv2.putText(image, "DOWN", (650,40), font, 1, red)
-        cv2.imwrite(output_dir_down+"down_"+json_no+".jpg",image)
+    print(json_no)
+
+    #DOWN
+    if (is_right_null and is_left_null) or (is_left_null and RQ > 100) or (is_right_null and LQ > 100) or (LQ > 100 and RQ > 100):
+        shutil.copy(frames_dir+"frame_"+json_no+".jpg", output_dir_down, follow_symlinks=True)
+
+    #UP
     else: 
-        #cv2.putText(image, "UP", (650,40), font, 1, red)
-        cv2.imwrite(output_dir_up+"up_"+json_no+".jpg",image)
+        shutil.copy(frames_dir+"frame_"+json_no+".jpg", output_dir_up, follow_symlinks=True)
 
 key = cv2.waitKey(0)
