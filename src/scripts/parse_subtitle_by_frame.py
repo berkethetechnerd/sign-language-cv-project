@@ -1,14 +1,32 @@
 import sys
-f_subtitle = open("./../data/subtitle.srt","r")
+f_subtitle = open("./subtitle.srt","r")
 
 def main():
+	removeParanthesis()
 	#getAllTexts()
 	#getText(sys.argv[1],sys.argv[2])
-	getTextByFrame(sys.argv[1])
+	#getTextByFrame(sys.argv[1])
 
+def removeParanthesis():
+	f_updated = open("./removed.txt","w+")
+	global f_subtitle
+	line = f_subtitle.readline()
+	lines = []
+	while(line):
+		if "(" in line :
+			temp = line.split(')')
+			if len(temp) > 1:
+				lines.append(temp[1])
+		else:
+			lines.append(line)
+
+		line = f_subtitle.readline()
+	
+	for line in lines:
+		f_updated.write(line)
 
 def getAllTexts():
-	f_updated = open("./../data/AllText.txt","w+")
+	f_updated = open("./AllText.txt","w+")
 	global f_subtitle
 	line = f_subtitle.readline()
 	lines = []
