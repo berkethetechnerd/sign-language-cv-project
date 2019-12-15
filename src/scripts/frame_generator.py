@@ -12,7 +12,7 @@ args = vars(ap.parse_args())
 file = args['file']
 
 # Define the output directory
-output_dir = './all_frames/'
+output_dir = './../../../titanik_hayir/all_frames3/'
 
 # Clear if the output directory exists
 if os.path.exists(output_dir):
