@@ -1,5 +1,5 @@
 import sys
-f_subtitle = open("./subtitle.srt","r")
+f_subtitle = open("./full_subtitle.srt","r")
 
 def main():
 	removeParanthesis()
