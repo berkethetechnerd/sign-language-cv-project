@@ -58,3 +58,31 @@ show_local_mp4_video('output.mp4', width=960, height=720)
 
 !cd openpose && zip -r example.zip ./output2
 
+
+### BERKE THE TECH NERD YO YE ###
+
+video_dir = './openpose/input/'
+video_files = ['./openpose/input/{}'.format(i) for i in os.listdir(video_dir)]  # get videos
+video_files.sort()
+
+print(len(video_files))
+
+
+
+import re
+import shutil
+
+for f in video_files:  
+  video_start_frame = re.findall(r'\d+', f)[0]
+  video_end_frame = re.findall(r'\d+', f)[1]
+  f2 = 'input/video_{}_{}.mp4'.format(video_start_frame, video_end_frame)
+  output_dir = 'openpose/output/json_{}_{}'.format(video_start_frame, video_end_frame)
+
+  if os.path.exists(output_dir):
+    shutil.rmtree(output_dir, ignore_errors = True)
+    
+  os.mkdir(output_dir)
+
+  output_dir2 = 'output/json_{}_{}'.format(video_start_frame, video_end_frame)
+  !cd openpose && ./build/examples/openpose/openpose.bin --video $f2 --write_json $output_dir2 --display 0 --face --hand --render_pose 0
+
